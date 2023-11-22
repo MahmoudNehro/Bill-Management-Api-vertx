@@ -5,6 +5,7 @@ import com.bill_management.admin.repositories.AuthenticationRepository;
 import com.bill_management.admin.repositories.BaseRepository;
 import com.bill_management.admin.utils.EventAddress;
 import com.bill_management.admin.utils.GeneralVerticle;
+import com.bill_management.admin.utils.Helpers;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.vertx.core.Promise;
 import io.vertx.core.json.JsonObject;
@@ -40,12 +41,16 @@ public class LoginVerticle extends GeneralVerticle<User> {
         .setPassword("secret"));
     JWTAuth jwt = JWTAuth.create(vertx, authConfig);
     JsonObject response = new JsonObject();
-    User user = new User(body.getString("email"), body.getString("password"));
-    boolean loggedIn = userAuthenticationRepository.executeQuery(user);
-    if (loggedIn) {
+    String email = body.getString("email");
+    String password = body.getString("password");
+    User user = new User(email);
+    JsonObject result = userAuthenticationRepository.handle(user);
+    String hashedPassword = result.getString("password");
+
+    if (result.getInteger("status_code") == 200 && Helpers.validatePassword(password, hashedPassword)) {
       response.put("message", "Login Success")
         .put("token", jwt.generateToken(new JsonObject().put("sub", user.email())))
-        .put("user", user.toJson());
+        .put("user", result.getJsonObject("user"));
       returnResponse(response, requestId, HttpResponseStatus.OK.code());
     } else {
       response.put("message", "Login failed, invalid credintials")
