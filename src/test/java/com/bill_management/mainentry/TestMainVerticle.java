@@ -1,6 +1,5 @@
 package com.bill_management.mainentry;
 
-import com.bill_management.admin.mainentry.GateWay;
 import io.vertx.core.Vertx;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;

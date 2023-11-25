@@ -1,9 +1,10 @@
-package com.bill_management.admin.mainentry;
+package com.bill_management.mainentry;
 
-import com.bill_management.admin.auth.LoginVerticle;
-import com.bill_management.admin.utils.BaseVerticle;
-import com.bill_management.admin.utils.Database;
-import com.bill_management.admin.utils.ResponseVerticle;
+import com.bill_management.verticles.admin.auth.LoginVerticle;
+import com.bill_management.verticles.admin.categories.CreateCategoryVerticle;
+import com.bill_management.utils.BaseVerticle;
+import com.bill_management.utils.Database;
+import com.bill_management.utils.ResponseVerticle;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
 import io.vertx.ext.web.Router;
@@ -17,8 +18,10 @@ public class GateWay extends BaseVerticle {
   public static void main(String[] args) {
     Vertx vertx = Vertx.vertx();
     deployVerticle(GateWay.class.getName(), 1, false, vertx);
-    deployVerticle(LoginVerticle.class.getName(), 1, false, vertx);
     deployVerticle(ResponseVerticle.class.getName(), 1, false, vertx);
+
+    deployVerticle(LoginVerticle.class.getName(), 1, false, vertx);
+    deployVerticle(CreateCategoryVerticle.class.getName(), 1, false, vertx);
   }
 
   @Override
@@ -32,7 +35,7 @@ public class GateWay extends BaseVerticle {
       .requestHandler(router)
       .listen(port, httpServerAsyncResult -> {
         if (httpServerAsyncResult.succeeded()) {
-          Database database = Database.getInstance("jdbc:oracle:thin:@localhost:1521:orcl", "sys as SYSDBA", "8101419");
+          Database.makeConnection("jdbc:oracle:thin:@localhost:1521:orcl", "sys as SYSDBA", "8101419");
           if (Database.getConnection() != null) {
             startPromise.complete();
             LOG.debug("Server started on port {}", port);

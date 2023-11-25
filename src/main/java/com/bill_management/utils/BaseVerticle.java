@@ -1,4 +1,4 @@
-package com.bill_management.admin.utils;
+package com.bill_management.utils;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.DeploymentOptions;

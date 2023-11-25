@@ -1,11 +1,11 @@
-package com.bill_management.admin.auth;
+package com.bill_management.verticles.admin.auth;
 
-import com.bill_management.admin.models.User;
-import com.bill_management.admin.repositories.AuthenticationRepository;
-import com.bill_management.admin.repositories.BaseRepository;
-import com.bill_management.admin.utils.EventAddress;
-import com.bill_management.admin.utils.GeneralVerticle;
-import com.bill_management.admin.utils.Helpers;
+import com.bill_management.models.User;
+import com.bill_management.repositories.AuthenticationRepository;
+import com.bill_management.repositories.BaseRepository;
+import com.bill_management.utils.EventAddress;
+import com.bill_management.utils.GeneralVerticle;
+import com.bill_management.utils.Helpers;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.vertx.core.Promise;
 import io.vertx.core.json.JsonObject;
@@ -15,7 +15,8 @@ import io.vertx.ext.auth.jwt.JWTAuthOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class LoginVerticle extends GeneralVerticle<User> {
+public class LoginVerticle extends GeneralVerticle {
+
   public static final Logger LOG = LoggerFactory.getLogger(LoginVerticle.class.getName());
 
   @Override
@@ -27,13 +28,13 @@ public class LoginVerticle extends GeneralVerticle<User> {
       JsonObject data = body.getJsonObject("data");
       String requestId = body.getString("requestId");
 
-      process(new AuthenticationRepository(),data, requestId);
+      process(data, requestId);
     });
     startPromise.complete();
   }
 
   @Override
-  public void process(BaseRepository<User> userAuthenticationRepository , JsonObject body, String requestId) {
+  public void process( JsonObject body, String requestId) {
     JWTAuthOptions authConfig = new JWTAuthOptions()
       .setKeyStore(new KeyStoreOptions()
         .setType("jceks")
@@ -44,7 +45,7 @@ public class LoginVerticle extends GeneralVerticle<User> {
     String email = body.getString("email");
     String password = body.getString("password");
     User user = new User(email);
-    JsonObject result = userAuthenticationRepository.handle(user);
+    JsonObject result = new AuthenticationRepository().login(user);
     String hashedPassword = result.getString("password");
 
     if (result.getInteger("status_code") == 200 && Helpers.validatePassword(password, hashedPassword)) {

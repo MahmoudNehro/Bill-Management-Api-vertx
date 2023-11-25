@@ -1,6 +1,6 @@
-package com.bill_management.admin.mainentry;
+package com.bill_management.mainentry;
 
-import com.bill_management.admin.utils.EventAddress;
+import com.bill_management.utils.EventAddress;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
@@ -46,7 +46,7 @@ public class MainRouter {
 
     this.router.route().failureHandler(handleFailure());
     this.router.post("/login").handler(routingContext -> requestHandler(EventAddress.LOGIN_ADDRESS, vertx, routingContext));
-    this.router.get("/protected/home").handler(routingContext -> requestHandler(EventAddress.HOME, vertx, routingContext));
+    this.router.post("/protected/categories/create").handler(routingContext -> requestHandler(EventAddress.CREATE_CATEGORY_ADDRESS, vertx, routingContext));
 
     return this.router;
   }
@@ -72,12 +72,23 @@ public class MainRouter {
         return;
       }
       LOG.error("Routing error : ", errContext.failure());
-      errContext.response()
-        .putHeader("content-type", "application/json")
-        .setStatusCode(HttpResponseStatus.INTERNAL_SERVER_ERROR.code())
-        .end(
-          new JsonObject().put("message", "Something went wrong, try again later").toString()
-        );
+      LOG.error("Error code : {} ", errContext.statusCode());
+      if (errContext.statusCode() == HttpResponseStatus.UNAUTHORIZED.code()) {
+        errContext.response()
+          .putHeader("content-type", "application/json")
+          .setStatusCode(HttpResponseStatus.UNAUTHORIZED.code())
+          .end(
+            new JsonObject().put("message", "Please login first").toString()
+          );
+      } else {
+        errContext.response()
+          .putHeader("content-type", "application/json")
+          .setStatusCode(HttpResponseStatus.INTERNAL_SERVER_ERROR.code())
+          .end(
+            new JsonObject().put("message", "Something went wrong, try again later").toString()
+          );
+      }
+
     };
   }
 
