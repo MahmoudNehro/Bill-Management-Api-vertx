@@ -9,12 +9,12 @@ public class AuthenticationRepository implements BaseRepository<User> {
 
   public JsonObject login(User model)  {
     String sqlStmt = buildCall("login", 3);
-    return handle(model, sqlStmt,"returnLoginData", 2, 3);
+    return handle(model, sqlStmt,"returnLoginData",this::bindLoginParams, 2, 3);
   }
 
 
-  @Override
-  public void bindParams(CallableStatement callableStatement, User user) throws SQLException {
+
+  public void bindLoginParams(CallableStatement callableStatement, User user) throws SQLException {
     callableStatement.setString(1, user.email());
     callableStatement.registerOutParameter(2, Types.INTEGER);
     callableStatement.registerOutParameter(3, Types.REF_CURSOR);

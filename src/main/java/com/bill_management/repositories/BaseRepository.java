@@ -1,11 +1,13 @@
 package com.bill_management.repositories;
 
 import com.bill_management.models.Model;
+import com.bill_management.utils.BindingDynamicProcedureParams;
 import com.bill_management.utils.Database;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.vertx.core.json.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.CallableStatement;
@@ -17,17 +19,16 @@ public interface BaseRepository<T extends Model> {
   Logger LOG = LoggerFactory.getLogger(BaseRepository.class.getName());
 
 
-  default JsonObject handle(T model, String sqlStmt, String returnDataMethod, int... outParams) {
+  default JsonObject handle(T model, String sqlStmt, String returnDataMethod, BindingDynamicProcedureParams<T> bindingDynamicProcedureParams, int... outParams) {
     JsonObject result = new JsonObject();
 
     if (connection != null) {
       try {
         CallableStatement callableStatement = connection.prepareCall(sqlStmt);
-        bindParams(callableStatement, model);
+        bindingDynamicProcedureParams.bind(callableStatement, model);
         callableStatement.execute();
         int statusCode = callableStatement.getInt(outParams[0]);
         String resultMsg = callableStatement.getString(outParams[1]);
-
         result.put("status_code", statusCode)
           .put("message", resultMsg);
 
@@ -35,9 +36,10 @@ public interface BaseRepository<T extends Model> {
         method.invoke(this, callableStatement, model, result);
 
       } catch (SQLException e) {
-        LOG.error("Error when executing procedure", e.getCause());
+        LOG.error("Error when executing procedure {}", e.getMessage());
         result.put("message", "Something went wrong").put("status_code", HttpResponseStatus.INTERNAL_SERVER_ERROR.code());
       } catch (InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
+        LOG.error("Error when invoking method", e.getCause());
         result.put("message", "Something went wrong").put("status_code", HttpResponseStatus.INTERNAL_SERVER_ERROR.code());
       }
     }
@@ -56,7 +58,5 @@ public interface BaseRepository<T extends Model> {
     }
     return result.toString();
   }
-
-  void bindParams(CallableStatement callableStatement, T model) throws SQLException;
 
 }

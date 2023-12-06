@@ -44,9 +44,14 @@ public class MainRouter {
     router.route().handler(BodyHandler.create());
 
 
+
     this.router.route().failureHandler(handleFailure());
     this.router.post("/login").handler(routingContext -> requestHandler(EventAddress.LOGIN_ADDRESS, vertx, routingContext));
     this.router.post("/protected/categories/create").handler(routingContext -> requestHandler(EventAddress.CREATE_CATEGORY_ADDRESS, vertx, routingContext));
+    this.router.put("/protected/categories/:categoryId/update").handler(routingContext -> requestHandler(EventAddress.UPDATE_CATEGORY_ADDRESS, vertx, routingContext));
+    this.router.get("/protected/categories/:categoryID").handler(routingContext -> requestHandler(EventAddress.GET_CATEGORY_ADDRESS, vertx, routingContext));
+    this.router.get("/protected/categories").handler(routingContext -> requestHandler(EventAddress.LIST_CATEGORY_ADDRESS, vertx, routingContext));
+    this.router.delete("/protected/categories/:categoryID").handler(routingContext -> requestHandler(EventAddress.DELETE_CATEGORY_ADDRESS, vertx, routingContext));
 
     return this.router;
   }
@@ -55,13 +60,13 @@ public class MainRouter {
     LOG.info("Sending message to address: " + address);
     if (routingContext.user() != null) {
       LOG.info("User {}", routingContext.user().attributes().getString("sub"));
-
     }
     String requestId = UUID.randomUUID().toString();
     routingMap.put(requestId, routingContext);
 
+    LOG.info("Params {}", routingContext.pathParams());
     vertx.eventBus().send(address, new JsonObject()
-      .put("data", routingContext.body().asJsonObject())
+      .put("data", routingContext.body().asJsonObject().put("params" , routingContext.pathParams()))
       .put("requestId", requestId)
     );
   }

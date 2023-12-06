@@ -11,11 +11,15 @@ public class CategoryRepository implements BaseRepository<Category> {
 
   public JsonObject createCategory(Category category) {
     String sqlStmt = buildCall("create_category", 7);
-    return handle(category, sqlStmt, "returnCreateData", 5, 6, 7);
+    return handle(category, sqlStmt, "returnCreateData", this::bindCreateParams, 5, 6, 7);
   }
 
-  @Override
-  public void bindParams(CallableStatement callableStatement, Category category) throws SQLException {
+  public JsonObject updateCategory(Category category) {
+    String sqlStmt = buildCall("update_cateogry", 7);
+    return handle(category, sqlStmt, "returnUpdateData", this::bindUpdateParams, 6, 7);
+  }
+
+  public void bindCreateParams(CallableStatement callableStatement, Category category) throws SQLException {
     callableStatement.setString(1, category.nameEn());
     callableStatement.setString(2, category.nameAr());
     callableStatement.setString(3, category.descEn());
@@ -25,6 +29,17 @@ public class CategoryRepository implements BaseRepository<Category> {
     callableStatement.registerOutParameter(7, Types.INTEGER);
   }
 
+  public void bindUpdateParams(CallableStatement callableStatement, Category category) throws SQLException {
+    callableStatement.setInt(1, category.id());
+    callableStatement.setString(2, category.nameEn());
+    callableStatement.setString(3, category.nameAr());
+    callableStatement.setString(4, category.descEn());
+    callableStatement.setString(5, category.descAr());
+    callableStatement.registerOutParameter(6, Types.INTEGER);
+    callableStatement.registerOutParameter(7, Types.VARCHAR);
+  }
+
+
   public void returnCreateData(CallableStatement callableStatement, Category category, JsonObject result) throws SQLException {
     Integer id = callableStatement.getInt(7);
     if (result.getInteger("status_code") == 200) {
@@ -32,6 +47,10 @@ public class CategoryRepository implements BaseRepository<Category> {
     } else {
       result.put("category", null);
     }
+  }
+
+  public void returnUpdateData(CallableStatement callableStatement, Category category, JsonObject result) throws SQLException {
+
   }
 
 }
