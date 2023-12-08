@@ -43,8 +43,6 @@ public class MainRouter {
     router.route("/protected/*").handler(JWTAuthHandler.create(authProvider));
     router.route().handler(BodyHandler.create());
 
-
-
     this.router.route().failureHandler(handleFailure());
     this.router.post("/login").handler(routingContext -> requestHandler(EventAddress.LOGIN_ADDRESS, vertx, routingContext));
     this.router.post("/protected/categories/create").handler(routingContext -> requestHandler(EventAddress.CREATE_CATEGORY_ADDRESS, vertx, routingContext));
@@ -65,10 +63,14 @@ public class MainRouter {
     routingMap.put(requestId, routingContext);
 
     LOG.info("Params {}", routingContext.pathParams());
-    vertx.eventBus().send(address, new JsonObject()
-      .put("data", routingContext.body().asJsonObject().put("params" , routingContext.pathParams()))
-      .put("requestId", requestId)
-    );
+    JsonObject data = new JsonObject();
+    data.put("requestId", requestId);
+    if (routingContext.body().asJsonObject() != null) {
+      data.put("data", routingContext.body().asJsonObject().put("params", routingContext.pathParams()));
+    } else {
+      data.put("data", new JsonObject().put("params", routingContext.pathParams()));
+    }
+    vertx.eventBus().send(address, data);
   }
 
   protected static Handler<RoutingContext> handleFailure() {

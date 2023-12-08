@@ -8,6 +8,11 @@ public record Category(Integer id, String nameEn, String nameAr, String descEn, 
     this(null, nameEn, nameAr, descEn, descAr);
   }
 
+  public Category(Integer id) {
+    this(id, null, null, null, null);
+
+  }
+
   @Override
   public JsonObject toJson() {
     return new JsonObject()

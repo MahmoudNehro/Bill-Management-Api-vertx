@@ -31,15 +31,15 @@ public interface BaseRepository<T extends Model> {
         String resultMsg = callableStatement.getString(outParams[1]);
         result.put("status_code", statusCode)
           .put("message", resultMsg);
-
-        Method method = this.getClass().getMethod(returnDataMethod, CallableStatement.class, model.getClass(), JsonObject.class);
-        method.invoke(this, callableStatement, model, result);
-
+        if (returnDataMethod != null) {
+          Method method = this.getClass().getMethod(returnDataMethod, CallableStatement.class, model.getClass(), JsonObject.class);
+          method.invoke(this, callableStatement, model, result);
+        }
       } catch (SQLException e) {
         LOG.error("Error when executing procedure {}", e.getMessage());
         result.put("message", "Something went wrong").put("status_code", HttpResponseStatus.INTERNAL_SERVER_ERROR.code());
       } catch (InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
-        LOG.error("Error when invoking method", e.getCause());
+        LOG.error("Error when invoking method {}", e.getMessage());
         result.put("message", "Something went wrong").put("status_code", HttpResponseStatus.INTERNAL_SERVER_ERROR.code());
       }
     }
