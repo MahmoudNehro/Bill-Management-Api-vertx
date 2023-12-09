@@ -1,9 +1,11 @@
 package com.bill_management.repositories;
 
 import com.bill_management.models.Category;
+import com.bill_management.models.User;
 import io.vertx.core.json.JsonObject;
 
 import java.sql.CallableStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 
@@ -22,6 +24,11 @@ public class CategoryRepository implements BaseRepository<Category> {
   public JsonObject deleteCategory(Category category) {
     String sqlStmt = buildCall("delete_category", 3);
     return handle(category, sqlStmt, null, this::bindDeleteParams, 2, 3);
+  }
+
+  public JsonObject getCategory(Category category) {
+    String sqlStmt = buildCall("get_category", 4);
+    return handle(category, sqlStmt, "returnGetData", this::bindGetParams, 2, 3, 4);
   }
 
   public void bindCreateParams(CallableStatement callableStatement, Category category) throws SQLException {
@@ -50,6 +57,14 @@ public class CategoryRepository implements BaseRepository<Category> {
     callableStatement.registerOutParameter(3, Types.VARCHAR);
   }
 
+  public void bindGetParams(CallableStatement callableStatement, Category category) throws SQLException {
+    callableStatement.setInt(1, category.id());
+    callableStatement.registerOutParameter(2, Types.INTEGER);
+    callableStatement.registerOutParameter(3, Types.VARCHAR);
+    callableStatement.registerOutParameter(4, Types.REF_CURSOR);
+
+  }
+
 
   public void returnCreateData(CallableStatement callableStatement, Category category, JsonObject result) throws SQLException {
     Integer id = callableStatement.getInt(7);
@@ -59,4 +74,29 @@ public class CategoryRepository implements BaseRepository<Category> {
       result.put("category", null);
     }
   }
+
+  public void returnGetData(CallableStatement callableStatement, Category category, JsonObject result) throws SQLException {
+    ResultSet resultSet = (ResultSet) callableStatement.getObject(4);
+    Integer id = null;
+    String nameEn = null;
+    String nameAr = null;
+    String descEn = null;
+    String descAr = null;
+    if (resultSet != null) {
+
+      while (resultSet.next()) {
+        id = resultSet.getInt("id");
+        nameEn = resultSet.getString("name_en");
+        nameAr = resultSet.getString("name_ar");
+        descEn = resultSet.getString("desc_en");
+        descAr = resultSet.getString("desc_ar");
+      }
+      Category category1 = new Category(id, nameEn, nameAr, descEn, descAr);
+      result.put("category", category1.toJson());
+    } else {
+      result.put("category", null);
+    }
+  }
+
+
 }

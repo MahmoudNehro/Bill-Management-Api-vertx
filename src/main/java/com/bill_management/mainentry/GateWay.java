@@ -6,6 +6,7 @@ import com.bill_management.utils.BaseVerticle;
 import com.bill_management.utils.Database;
 import com.bill_management.utils.ResponseVerticle;
 import com.bill_management.verticles.admin.categories.DeleteCategoryVerticle;
+import com.bill_management.verticles.admin.categories.GetCategoryVerticle;
 import com.bill_management.verticles.admin.categories.UpdateCategoryVerticle;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
@@ -26,6 +27,7 @@ public class GateWay extends BaseVerticle {
     deployVerticle(CreateCategoryVerticle.class.getName(), 1, false, vertx);
     deployVerticle(UpdateCategoryVerticle.class.getName(), 1, false, vertx);
     deployVerticle(DeleteCategoryVerticle.class.getName(), 1, false, vertx);
+    deployVerticle(GetCategoryVerticle.class.getName(), 1, false, vertx);
   }
 
   @Override

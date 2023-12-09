@@ -40,6 +40,7 @@ public interface BaseRepository<T extends Model> {
         result.put("message", "Something went wrong").put("status_code", HttpResponseStatus.INTERNAL_SERVER_ERROR.code());
       } catch (InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
         LOG.error("Error when invoking method {}", e.getMessage());
+        e.printStackTrace();
         result.put("message", "Something went wrong").put("status_code", HttpResponseStatus.INTERNAL_SERVER_ERROR.code());
       }
     }
