@@ -1,13 +1,10 @@
 package com.bill_management.mainentry;
 
 import com.bill_management.verticles.admin.auth.LoginVerticle;
-import com.bill_management.verticles.admin.categories.CreateCategoryVerticle;
+import com.bill_management.verticles.admin.categories.*;
 import com.bill_management.utils.BaseVerticle;
 import com.bill_management.utils.Database;
 import com.bill_management.utils.ResponseVerticle;
-import com.bill_management.verticles.admin.categories.DeleteCategoryVerticle;
-import com.bill_management.verticles.admin.categories.GetCategoryVerticle;
-import com.bill_management.verticles.admin.categories.UpdateCategoryVerticle;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
 import io.vertx.ext.web.Router;
@@ -28,6 +25,7 @@ public class GateWay extends BaseVerticle {
     deployVerticle(UpdateCategoryVerticle.class.getName(), 1, false, vertx);
     deployVerticle(DeleteCategoryVerticle.class.getName(), 1, false, vertx);
     deployVerticle(GetCategoryVerticle.class.getName(), 1, false, vertx);
+    deployVerticle(ListCategoryVerticle.class.getName(), 1, false, vertx);
   }
 
   @Override

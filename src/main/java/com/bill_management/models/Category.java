@@ -13,7 +13,11 @@ public record Category(Integer id, String nameEn, String nameAr, String descEn, 
 
   }
 
-  @Override
+    public Category() {
+        this(null,null,null,null);
+    }
+
+    @Override
   public JsonObject toJson() {
     return new JsonObject()
       .put("id", this.id)
