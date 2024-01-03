@@ -1,5 +1,7 @@
 package com.bill_management.utils;
 
+import org.jetbrains.annotations.NotNull;
+
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import java.math.BigInteger;
@@ -10,7 +12,7 @@ import java.security.spec.InvalidKeySpecException;
 
 public class Helpers {
 
-  public static String hashPassword(String password) {
+  public static String hashPassword(@NotNull String password) {
     try {
       int iterations = 1000;
       char[] chars = password.toCharArray();

@@ -8,6 +8,10 @@ public record User(Integer id, String name, String email, String phone, String p
     this(id, name, email, phone, null);
   }
 
+  public User(String name, String email, String phone, String password) {
+    this(null, name, email, phone, password);
+  }
+
   public User(String email, String password) {
     this(null, null, email, null, password);
   }

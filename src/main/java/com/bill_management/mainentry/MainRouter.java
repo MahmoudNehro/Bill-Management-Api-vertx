@@ -44,13 +44,20 @@ public class MainRouter {
     router.route().handler(BodyHandler.create());
 
     this.router.route().failureHandler(handleFailure());
+    //admin auth
     this.router.post("/login").handler(routingContext -> requestHandler(EventAddress.LOGIN_ADDRESS, vertx, routingContext));
+    // categories
     this.router.post("/protected/categories/create").handler(routingContext -> requestHandler(EventAddress.CREATE_CATEGORY_ADDRESS, vertx, routingContext));
     this.router.put("/protected/categories/:categoryId/update").handler(routingContext -> requestHandler(EventAddress.UPDATE_CATEGORY_ADDRESS, vertx, routingContext));
     this.router.get("/protected/categories/:categoryID").handler(routingContext -> requestHandler(EventAddress.GET_CATEGORY_ADDRESS, vertx, routingContext));
     this.router.get("/protected/categories").handler(routingContext -> requestHandler(EventAddress.LIST_CATEGORY_ADDRESS, vertx, routingContext));
     this.router.delete("/protected/categories/:categoryID").handler(routingContext -> requestHandler(EventAddress.DELETE_CATEGORY_ADDRESS, vertx, routingContext));
-
+    // users
+    this.router.post("/protected/users/create").handler(routingContext -> requestHandler(EventAddress.CREATE_USER_ADDRESS, vertx, routingContext));
+    this.router.put("/protected/users/:userID/update").handler(routingContext -> requestHandler(EventAddress.UPDATE_USER_ADDRESS, vertx, routingContext));
+    this.router.get("/protected/users/:userID").handler(routingContext -> requestHandler(EventAddress.GET_USER_ADDRESS, vertx, routingContext));
+    this.router.get("/protected/users").handler(routingContext -> requestHandler(EventAddress.LIST_USER_ADDRESS, vertx, routingContext));
+    this.router.delete("/protected/users/:userID").handler(routingContext -> requestHandler(EventAddress.DELETE_USER_ADDRESS, vertx, routingContext));
     return this.router;
   }
 
