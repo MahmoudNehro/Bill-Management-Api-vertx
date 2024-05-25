@@ -1,10 +1,8 @@
 package com.bill_management.repositories;
 
 import com.bill_management.models.Category;
-import com.bill_management.models.User;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-
 import java.sql.CallableStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;

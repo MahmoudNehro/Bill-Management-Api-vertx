@@ -1,6 +1,5 @@
 package com.bill_management.mainentry;
 
-import com.bill_management.utils.EventAddress;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
@@ -19,6 +18,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.UUID;
+
+import static com.bill_management.utils.Constants.EventAddress.*;
+import static com.bill_management.utils.Constants.Keys.*;
 
 public class MainRouter {
   private static final Logger LOG = LoggerFactory.getLogger(MainRouter.class.getName());
@@ -45,19 +47,19 @@ public class MainRouter {
 
     this.router.route().failureHandler(handleFailure());
     //admin auth
-    this.router.post("/login").handler(routingContext -> requestHandler(EventAddress.LOGIN_ADDRESS, vertx, routingContext));
+    this.router.post("/login").handler(routingContext -> requestHandler(LOGIN_ADDRESS, vertx, routingContext));
     // categories
-    this.router.post("/protected/categories/create").handler(routingContext -> requestHandler(EventAddress.CREATE_CATEGORY_ADDRESS, vertx, routingContext));
-    this.router.put("/protected/categories/:categoryId/update").handler(routingContext -> requestHandler(EventAddress.UPDATE_CATEGORY_ADDRESS, vertx, routingContext));
-    this.router.get("/protected/categories/:categoryID").handler(routingContext -> requestHandler(EventAddress.GET_CATEGORY_ADDRESS, vertx, routingContext));
-    this.router.get("/protected/categories").handler(routingContext -> requestHandler(EventAddress.LIST_CATEGORY_ADDRESS, vertx, routingContext));
-    this.router.delete("/protected/categories/:categoryID").handler(routingContext -> requestHandler(EventAddress.DELETE_CATEGORY_ADDRESS, vertx, routingContext));
+    this.router.post("/protected/categories/create").handler(routingContext -> requestHandler(CREATE_CATEGORY_ADDRESS, vertx, routingContext));
+    this.router.put("/protected/categories/:categoryId/update").handler(routingContext -> requestHandler(UPDATE_CATEGORY_ADDRESS, vertx, routingContext));
+    this.router.get("/protected/categories/:categoryID").handler(routingContext -> requestHandler(GET_CATEGORY_ADDRESS, vertx, routingContext));
+    this.router.get("/protected/categories").handler(routingContext -> requestHandler(LIST_CATEGORY_ADDRESS, vertx, routingContext));
+    this.router.delete("/protected/categories/:categoryID").handler(routingContext -> requestHandler(DELETE_CATEGORY_ADDRESS, vertx, routingContext));
     // users
-    this.router.post("/protected/users/create").handler(routingContext -> requestHandler(EventAddress.CREATE_USER_ADDRESS, vertx, routingContext));
-    this.router.put("/protected/users/:userID/update").handler(routingContext -> requestHandler(EventAddress.UPDATE_USER_ADDRESS, vertx, routingContext));
-    this.router.get("/protected/users/:userID").handler(routingContext -> requestHandler(EventAddress.GET_USER_ADDRESS, vertx, routingContext));
-    this.router.get("/protected/users").handler(routingContext -> requestHandler(EventAddress.LIST_USER_ADDRESS, vertx, routingContext));
-    this.router.delete("/protected/users/:userID").handler(routingContext -> requestHandler(EventAddress.DELETE_USER_ADDRESS, vertx, routingContext));
+    this.router.post("/protected/users/create").handler(routingContext -> requestHandler(CREATE_USER_ADDRESS, vertx, routingContext));
+    this.router.put("/protected/users/:userID/update").handler(routingContext -> requestHandler(UPDATE_USER_ADDRESS, vertx, routingContext));
+    this.router.get("/protected/users/:userID").handler(routingContext -> requestHandler(GET_USER_ADDRESS, vertx, routingContext));
+    this.router.get("/protected/users").handler(routingContext -> requestHandler(LIST_USER_ADDRESS, vertx, routingContext));
+    this.router.delete("/protected/users/:userID").handler(routingContext -> requestHandler(DELETE_USER_ADDRESS, vertx, routingContext));
     return this.router;
   }
 
@@ -71,11 +73,11 @@ public class MainRouter {
 
     LOG.info("Params {}", routingContext.pathParams());
     JsonObject data = new JsonObject();
-    data.put("requestId", requestId);
+    data.put(REQUEST_ID, requestId);
     if (routingContext.body().asJsonObject() != null) {
-      data.put("data", routingContext.body().asJsonObject().put("params", routingContext.pathParams()));
+      data.put(DATA, routingContext.body().asJsonObject().put(PARAMS, routingContext.pathParams()));
     } else {
-      data.put("data", new JsonObject().put("params", routingContext.pathParams()));
+      data.put(DATA, new JsonObject().put(PARAMS, routingContext.pathParams()));
     }
     vertx.eventBus().send(address, data);
   }
@@ -89,17 +91,17 @@ public class MainRouter {
       LOG.error("Error code : {} ", errContext.statusCode());
       if (errContext.statusCode() == HttpResponseStatus.UNAUTHORIZED.code()) {
         errContext.response()
-          .putHeader("content-type", "application/json")
+          .putHeader(CONTENT_TYPE, CONTENT_TYPE_JSON)
           .setStatusCode(HttpResponseStatus.UNAUTHORIZED.code())
           .end(
-            new JsonObject().put("message", "Please login first").toString()
+            new JsonObject().put(MESSAGE, "Please login first").toString()
           );
       } else {
         errContext.response()
-          .putHeader("content-type", "application/json")
+          .putHeader(CONTENT_TYPE, CONTENT_TYPE_JSON)
           .setStatusCode(HttpResponseStatus.INTERNAL_SERVER_ERROR.code())
           .end(
-            new JsonObject().put("message", "Something went wrong, try again later").toString()
+            new JsonObject().put(MESSAGE, "Something went wrong, try again later").toString()
           );
       }
 

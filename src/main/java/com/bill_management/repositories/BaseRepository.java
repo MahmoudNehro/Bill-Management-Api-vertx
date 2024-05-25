@@ -14,6 +14,9 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+import static com.bill_management.utils.Constants.Keys.MESSAGE;
+import static com.bill_management.utils.Constants.Keys.STATUS_CODE;
+
 public interface BaseRepository<T extends Model> {
   Connection connection = Database.getConnection();
   Logger LOG = LoggerFactory.getLogger(BaseRepository.class.getName());
@@ -29,19 +32,19 @@ public interface BaseRepository<T extends Model> {
         callableStatement.execute();
         int statusCode = callableStatement.getInt(outParams[0]);
         String resultMsg = callableStatement.getString(outParams[1]);
-        result.put("status_code", statusCode)
-          .put("message", resultMsg);
+        result.put(STATUS_CODE, statusCode)
+          .put(MESSAGE, resultMsg);
         if (returnDataMethod != null) {
           Method method = this.getClass().getMethod(returnDataMethod, CallableStatement.class, model.getClass(), JsonObject.class);
           method.invoke(this, callableStatement, model, result);
         }
       } catch (SQLException e) {
         LOG.error("Error when executing procedure {}", e.getMessage());
-        result.put("message", "Something went wrong").put("status_code", HttpResponseStatus.INTERNAL_SERVER_ERROR.code());
+        result.put("message", "Something went wrong").put(STATUS_CODE, HttpResponseStatus.INTERNAL_SERVER_ERROR.code());
       } catch (InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
         LOG.error("Error when invoking method {}", e.getMessage());
         e.printStackTrace();
-        result.put("message", "Something went wrong").put("status_code", HttpResponseStatus.INTERNAL_SERVER_ERROR.code());
+        result.put(MESSAGE, "Something went wrong").put(STATUS_CODE, HttpResponseStatus.INTERNAL_SERVER_ERROR.code());
       }
     }
     return result;
